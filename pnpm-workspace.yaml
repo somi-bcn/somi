@@ -1,0 +1,20 @@
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  sharp: true
+minimumReleaseAgeExclude:
+  - '@sanity/access-ui@6.12.0'
+  - '@sanity/cli-build@6.2.0'
+  - '@sanity/cli-core@3.6.0'
+  - '@sanity/cli@8.7.0'
+  - '@sanity/diff@6.12.0'
+  - '@sanity/mutator@6.12.0'
+  - '@sanity/schema@6.12.0'
+  - '@sanity/types@6.12.0'
+  - '@sanity/util@6.12.0'
+  - '@sanity/validation@6.12.0'
+  - '@sanity/visual-editing-csm@3.0.18'
+  - '@sanity/visual-editing@6.1.2'
+  - '@sanity/workbench-cli@2.3.0'
+  - groq@6.12.0
+  - sanity@6.12.0
