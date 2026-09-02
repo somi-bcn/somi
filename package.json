@@ -13,8 +13,8 @@
     "preview": "astro preview",
     "check": "astro check",
     "lint": "eslint .",
-    "format:check": "prettier --check .",
     "format": "prettier --write .",
+    "sanity:dev": "sanity dev",
     "seed:sanity": "node --env-file=.env scripts/seed-content.mjs"
   },
   "dependencies": {

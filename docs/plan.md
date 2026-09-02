@@ -4,9 +4,10 @@ This file is the canonical plan. The build plan, version pins, and content model
 
 ## Current state
 
-Phases 0 through 5 are done. The repository is `somi-bcn/somi`, private, one commit on `main`, and `pnpm lint`, `pnpm check`, and `pnpm build` all pass. Sanity project `7baiygyd` exists with a public `production` dataset and working tokens in `.env`, but nothing in the codebase talks to it yet — `astro.config.mjs` is still the bare scaffold default.
+Phases 0 through 6 are done. The repository is `somi-bcn/somi`, private, two commits on `main`, and `pnpm lint`, `pnpm check`, and `pnpm build` all pass. Sanity project `7baiygyd` exists with a public `production` dataset and working tokens in `.env`. The Sanity schema, Studio config, and structure resolver are in place; `astro.config.mjs` is not yet wired to Sanity.
 
-**Next: Phase 6.** It also carries one item deferred from Phase 5, a README setup section documenting `SANITY_API_READ_TOKEN` and `SANITY_API_WRITE_TOKEN`, which replaces the `.env.example` that was deliberately not created.
+**Next: Phase 7.**
+
 
 Read `AGENTS.md` at the repo root first; it holds the toolchain rules and conventions.
 
@@ -162,7 +163,7 @@ gh repo create somi-bcn/somi --private --source . --remote origin --push
 
 `pnpm-lock.yaml` is `lockfileVersion: '9.0'`, which is current. The field describes the entry schema, not the pnpm release, and pnpm 9 through 12 all write it. Not something to "upgrade".
 
-### Phase 6 — Sanity schema and Studio
+### Phase 6 — Sanity schema and Studio — DONE
 
 - `sanity.constants.ts` — exports `projectId` and `dataset`
 - `sanity.cli.ts` — `defineCliConfig` reading those constants
