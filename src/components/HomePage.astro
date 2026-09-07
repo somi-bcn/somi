@@ -1,0 +1,71 @@
+---
+import { VisualEditing } from '@sanity/astro/visual-editing';
+
+import '../styles/global.css';
+import type { Locale } from '../lib/sanity/locale';
+import { pickLocale } from '../lib/sanity/locale';
+import type { IntlArray } from '../lib/sanity/queries';
+import { isPreview } from '../lib/sanity/preview';
+import { getHomeContent } from '../lib/sanity/getHomeContent';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const preview = isPreview(Astro.cookies);
+const content = await getHomeContent(preview);
+
+const t = (field: IntlArray | undefined) => pickLocale(field, locale);
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/lexend-latin.woff2" crossorigin />
+    <meta name="generator" content={Astro.generator} />
+    <title>Somi</title>
+  </head>
+  <body>
+    <main>
+      <section id="hero">
+        <h1>{t(content?.hero?.heading)}</h1>
+        <p class="whitespace-pre-line">{t(content?.hero?.subheading)}</p>
+      </section>
+
+      <section id="ethos">
+        <h2>{t(content?.ethos?.heading)}</h2>
+        <p class="whitespace-pre-line">{t(content?.ethos?.body)}</p>
+      </section>
+
+      <section id="activities">
+        <h2>{t(content?.activities?.heading)}</h2>
+        <p class="whitespace-pre-line">{t(content?.activities?.body)}</p>
+      </section>
+
+      <section id="join">
+        <h2>{t(content?.join?.heading)}</h2>
+        <p class="whitespace-pre-line">{t(content?.join?.body)}</p>
+        {/* Rendered as text until the enquiry form URL exists (see plan open items). */}
+        {t(content?.join?.cta) && <p data-cta>{t(content?.join?.cta)}</p>}
+      </section>
+
+      <section id="residency">
+        <h2>{t(content?.residency?.heading)}</h2>
+        <p class="whitespace-pre-line">{t(content?.residency?.body)}</p>
+      </section>
+
+      <section id="about">
+        <h2>{t(content?.about?.heading)}</h2>
+        <p class="whitespace-pre-line">{t(content?.about?.body)}</p>
+      </section>
+    </main>
+
+    {preview && <a href="/api/draft-mode/disable">Exit preview</a>}
+    <VisualEditing enabled={preview} />
+  </body>
+</html>

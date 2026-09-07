@@ -4,9 +4,9 @@ This file is the canonical plan. The build plan, version pins, and content model
 
 ## Current state
 
-Phases 0 through 6 are done. The repository is `somi-bcn/somi`, private, two commits on `main`, and `pnpm lint`, `pnpm check`, and `pnpm build` all pass. Sanity project `7baiygyd` exists with a public `production` dataset and working tokens in `.env`. The Sanity schema, Studio config, and structure resolver are in place; `astro.config.mjs` is not yet wired to Sanity.
+Phases 0 through 8 are done. The repository is `somi-bcn/somi`, public, on `main`, and `pnpm lint`, `pnpm check`, and `pnpm build` all pass. Sanity project `7baiygyd` exists with a public `production` dataset and working tokens in `.env`. The Sanity schema, Studio config, and structure resolver are in place. `astro.config.mjs` is wired to Sanity: server output with the Netlify adapter, i18n routing, embedded Studio at `/admin`, Tailwind 4, sitemap, and draft-mode preview. The three locale pages render the `homePage` singleton through a shared component. Run `pnpm seed:sanity` once to populate the starting copy. The site is live at `https://somi-bcn.netlify.app`, deploying from `main`.
 
-**Next: Phase 7.**
+**Next: point the custom domain at Netlify, then Phase 9 (owner access and handoff).**
 
 
 Read `AGENTS.md` at the repo root first; it holds the toolchain rules and conventions.
@@ -26,7 +26,9 @@ Read `AGENTS.md` at the repo root first; it holds the toolchain rules and conven
 Runtime:
 
 - `astro@^7.2.10`, `@astrojs/netlify@^8.2.5`, `@astrojs/react@^6.0.5`, `@astrojs/sitemap@^3.7.4`
-- `sanity@^6.12.0`, `@sanity/astro@^3.5.1`, `@sanity/client@^8.4.0`, `@sanity/icons@^5.2.1`, `@sanity/visual-editing@^6.1.2`, `@sanity/preview-url-secret@^4.1.5`, `groq@^6.12.0`
+- `sanity@^6.12.0`, `@sanity/astro@^3.5.1`, `@sanity/client@^8.4.0`, `@sanity/icons@^5.2.1`, `@sanity/preview-url-secret@^4.1.5`, `@sanity/visual-editing@^5.7.3`, `groq@^6.12.0`
+- `@sanity/visual-editing` must track `@sanity/astro@3.5.1`'s own range (`^5.5.0`), **not** `^6.x` — a v6 direct pin installs a second major version alongside `@sanity/astro`'s v5 and breaks dep pre-bundling. It is a direct dep only so `optimizeDeps.include` can name it.
+- `react-compiler-runtime@1.0.0` (exact) — direct dep only to make the shim's subpath import resolvable. rolldown-vite (Vite 8) converts this CJS package to ESM without its named exports, so `@sanity/ui`'s `import { c } from 'react-compiler-runtime'` (embedded Studio Visual Editing) fails; `src/shims/react-compiler-runtime.mjs` re-exports the members and is aliased in for the bare specifier. Remove the shim + pin if `@sanity/ui` ships an ESM-clean build or rolldown-vite fixes the interop.
 - `@sanity/language-filter@^5.0.18`, `sanity-plugin-internationalized-array@^5.2.3` (skip its optional `@sanity/assist` peer)
 - `react@^19.2.8`, `react-dom@^19.2.8`, `react-is@^19.2.8`, `styled-components@^6.5.3` — hard peers of `@sanity/astro`, not app code
 - `tailwindcss@^4.3.3`, `@tailwindcss/vite@^4.3.3`
@@ -41,19 +43,20 @@ Dev:
 
 ## Content model
 
-- `homePage` singleton — one field group per scroll section, all copy as `internationalizedArrayString` / `internationalizedArrayText`
-- `event` document, repeatable — mixed translation: title and description internationalized, date/time/price/facilitator plain
+- `homePage` singleton — one `object` field per scroll section (`hero`, `ethos`, `activities`, `join`, `residency`, `about`), each rendered as a collapsible card, expanded by default. Section fields are `heading` / `body` (`join` also has `cta`), all copy as `internationalizedArrayString` / `internationalizedArrayText`. GROQ shape: `homePage{ hero{heading,subheading}, ethos{heading,body}, … }`.
+- `event` document, repeatable — mixed translation: title and description internationalized, date/time/price/facilitator plain. Not queried or rendered yet; editable in Studio.
 - `siteSettings` singleton — address, social links, per-section SEO metadata
 
-`structure/index.ts` needs a real `StructureResolver` that surfaces event creation as a top-level action rather than burying it under a page tree.
+`structure/index.ts` has a `StructureResolver` that surfaces event creation as a top-level action rather than burying it under a page tree.
 
 ## Starting copy
 
-Seed from `resources/Website.pdf`. All three locales get the same English text initially; translation happens later in the Studio.
+Seeded from `resources/Website.pdf` by `scripts/seed-content.mjs` (`pnpm seed:sanity`). All three locales get the same English text initially; translation happens later in the Studio. Re-running overwrites the document, so it is a one-time bootstrap, not a sync.
 
-- Hero, Radical tenderness, Join, Activities, Artistic Residency — only one draft exists, use it
+- Hero, Join, Activities, Artistic Residency — only one draft exists, use it
 - Ethos — the first, unlabelled draft
 - About — the main-flow version
+- "Radical tenderness" has no field in the current schema and is not seeded; fold it into Ethos or add a field if the owner wants it standalone
 
 Other variants exist in `resources/Website.pdf` and can be swapped in Studio after owner review.
 
@@ -64,7 +67,7 @@ All of this is placeholder pending their sign-off; none of it is final copy.
 Six colours into Tailwind `@theme` in `src/styles/global.css`:
 `#EFE3DE` ground, `#F0CE31` yellow, `#B8322F` red, `#63A4AF` teal, `#CA5D08` orange, `#4D5233` olive.
 
-Typeface: **Lexend** (SIL OFL 1.1), variable weight axis, standing in for Galvji. Measured against Galvji: x-height 0.525 vs 0.526, cap-height 0.700 vs 0.705, ratio 0.750 vs 0.747. Full Spanish and Catalan coverage including U+00B7. Loading strategy (self-hosted vs CDN) is a Phase 7 decision.
+Typeface: **Lexend** (SIL OFL 1.1), variable weight axis, standing in for Galvji. Measured against Galvji: x-height 0.525 vs 0.526, cap-height 0.700 vs 0.705, ratio 0.750 vs 0.747. Full Spanish and Catalan coverage including U+00B7. Self-hosted (Phase 7 decision): the variable woff2 (latin + latin-ext) from `@fontsource-variable/lexend` is committed under `public/fonts/`, `@font-face` with `font-display: swap` in `global.css`, no third-party request (GDPR-clean for an EU site).
 
 ## Phases
 
@@ -115,10 +118,10 @@ No git work here. The repository is created at the end of Phase 5, so the first 
 ```bash
 pnpm add astro@^7.2.10 @astrojs/netlify@^8.2.5 @astrojs/react@^6.0.5 @astrojs/sitemap@^3.7.4 \
   @sanity/astro@^3.5.1 @sanity/client@^8.4.0 @sanity/icons@^5.2.1 \
-  @sanity/visual-editing@^6.1.2 @sanity/preview-url-secret@^4.1.5 \
+  @sanity/preview-url-secret@^4.1.5 @sanity/visual-editing@^5.7.3 \
   sanity@^6.12.0 groq@^6.12.0 \
   @sanity/language-filter@^5.0.18 sanity-plugin-internationalized-array@^5.2.3 \
-  react@^19.2.8 react-dom@^19.2.8 react-is@^19.2.8 styled-components@^6.5.3 \
+  react@^19.2.8 react-dom@^19.2.8 react-is@^19.2.8 react-compiler-runtime@1.0.0 styled-components@^6.5.3 \
   tailwindcss@^4.3.3 @tailwindcss/vite@^4.3.3
 ```
 
@@ -184,9 +187,11 @@ with `defaultLanguages: ['ca']` and `fieldTypes: ['string', 'text']`.
 - `schemaTypes/documents/siteSettings.ts` — singleton
 - `structure/index.ts` — `StructureResolver` listing the homepage singleton, site settings, and an events list with creation as a prominent action
 
-### Phase 7 — Astro wiring
+### Phase 7 — Astro wiring — DONE
 
-- `astro.config.mjs` — `output: 'server'`, Netlify adapter, Tailwind and sitemap, the `sanity()` integration with `studioBasePath: '/admin'`, `studioRouterHistory: 'hash'`, `stega.studioUrl: '/admin'`, and a startup guard that throws when `SANITY_API_READ_TOKEN` is absent. i18n block:
+Scope was semantic wiring only: real Sanity content in semantic HTML through the i18n routes and the preview pipeline, with brand tokens available. Visual design is deferred (blocked on font and copy sign-off). Events are editable in Studio but not queried or rendered.
+
+- `astro.config.mjs` — `output: 'server'`, Netlify adapter, Tailwind (`@tailwindcss/vite`) and sitemap, the `sanity()` integration with `studioBasePath: '/admin'`, `studioRouterHistory: 'hash'`, `stega.studioUrl: '/admin'`, `useCdn: true`, `apiVersion: '2024-11-01'`. `react()` is added for the embedded Studio and Visual Editing overlays. The startup guard reads `.env` with vite's `loadEnv` (the config file runs before Astro loads `.env`) and throws when `SANITY_API_READ_TOKEN` is absent. `site: 'https://somibcn.org'` for the sitemap. i18n block:
 
 ```js
 i18n: {
@@ -197,23 +202,29 @@ i18n: {
 ```
 
 - `vite.resolve.dedupe` for `react`, `react-dom`, `react-is`, `styled-components` to keep the Studio from loading duplicate copies
-- `src/lib/sanity/locale.ts` — locale union type and path helper, `ca` as default
-- `src/lib/sanity/queries.ts` — GROQ queries and result types
-- `src/lib/sanity/getHomeContent.ts` — fetch wrapper switching perspective and stega on preview
-- `src/lib/sanity/preview.ts` — preview cookie helper
-- `src/pages/api/draft-mode/enable.ts` and `disable.ts` — `validatePreviewUrl` from `@sanity/preview-url-secret`, cookie set with `sameSite`/`secure` conditional on HTTPS
-- `src/pages/index.astro` (ca), `src/pages/es/index.astro`, `src/pages/en/index.astro` — thin wrappers over a shared view component
-- `src/styles/global.css` — Tailwind 4 entry plus `@theme` brand tokens
-- `scripts/seed-content.mjs` — writes the starting copy into Sanity, run with `node --env-file=.env scripts/seed-content.mjs` via a `seed:sanity` package script. Uses `SANITY_API_WRITE_TOKEN`.
+- `vite.resolve.alias` maps the bare specifier `react-compiler-runtime` (regex `/^react-compiler-runtime$/`, so the shim's own subpath import is untouched) to `src/shims/react-compiler-runtime.mjs`, which re-exports the CJS members explicitly — works around rolldown-vite dropping the named exports. `vite.optimizeDeps.include` lists `@sanity/visual-editing` and `@sanity/visual-editing/react` so the shim is inlined into that pre-bundle rather than discovered lazily.
+- `src/lib/sanity/locale.ts` — `Locale` union, `defaultLocale`, `localePath` helper, and `pickLocale` to resolve one locale's value out of an `internationalizedArray` (falls back to `ca` then the first entry)
+- `src/lib/sanity/queries.ts` — `homeContentQuery` (nested section shape) and the `HomeContent` / `IntlArray` types
+- `src/lib/sanity/getHomeContent.ts` — uses `sanityClient` from `sanity:client`; in preview it `withConfig`s the read token, `perspective: 'drafts'`, and stega pointed at `/admin`
+- `src/lib/sanity/preview.ts` — `PREVIEW_COOKIE`, `isPreview`, `setPreviewCookie` (`sameSite`/`secure` conditional on HTTPS), `clearPreviewCookie`
+- `src/pages/api/draft-mode/enable.ts` and `disable.ts` — `validatePreviewUrl` from `@sanity/preview-url-secret` against a token-scoped `sanityClient`, then set the cookie and redirect
+- `src/pages/index.astro` (ca), `src/pages/es/index.astro`, `src/pages/en/index.astro` — three-line wrappers passing `locale` to `src/components/HomePage.astro`
+- `src/components/HomePage.astro` — shared view: fetches content, renders the six sections as semantic HTML. Each body is one `<p class="whitespace-pre-line">` rather than split into separate `<p>` tags per blank-line paragraph — splitting fragments Sanity's stega encoding, which is appended once to the whole field string, breaking Visual Editing's overlay attribution. Mounts `<VisualEditing enabled={preview} />` and an exit-preview link.
+- `src/styles/global.css` — Tailwind 4 entry, self-hosted Lexend variable `@font-face` (latin + latin-ext, `font-display: swap`), `@theme` with `--font-sans` and the six brand colours
+- `public/fonts/lexend-latin.woff2`, `public/fonts/lexend-latin-ext.woff2` — from `@fontsource-variable/lexend`, committed
+- `scripts/seed-content.mjs` — `createOrReplace` the `homePage` singleton with the starting copy, then delete `drafts.homePage`. Run via `pnpm seed:sanity` (`node --env-file=.env`), uses `SANITY_API_WRITE_TOKEN`. Each internationalizedArray entry is `{ _key: <uuid>, _type: 'internationalizedArray{String,Text}Value', language: '<locale>', value }` — the locale is on `language`, and `pickLocale` reads it from there.
 
 Seeding writes the same English text into all three locale slots of every `internationalizedArray` field, so `ca`, `es`, and `en` all render immediately and no section falls back to empty. Translation then happens in the Studio, replacing one locale at a time, with no code changes.
 
-### Phase 8 — Netlify
+The read token is exposed to server code as `import.meta.env.SANITY_API_READ_TOKEN` (SSR only, never shipped to the client). The `homePage` document must exist for the pages to show anything — run `pnpm seed:sanity` after a fresh dataset or a schema reset.
 
-1. Connect the GitHub repo. Build command `pnpm build`, publish directory `dist`.
-2. Add `SANITY_API_READ_TOKEN` to environment variables; the build fails without it by design.
-3. Add the `*.netlify.app` URL and the custom domain to Sanity CORS origins.
-4. Verify the Studio loads at `/admin` in production and that Presentation preview round-trips.
+`pnpm check`, `pnpm lint`, and `pnpm build` pass. Not yet verified: actual hover/click behavior in the embedded Presentation tool in a real browser — open `/admin/presentation`, hover each section's heading and body, and confirm the border wraps the full field and clicking opens the right field in the edit panel.
+
+### Phase 8 — Netlify — DONE pending custom domain and a browser check
+
+Site `somi-bcn` at `https://somi-bcn.netlify.app`, built from `somi-bcn/somi` on `main` via `netlify.toml` (`pnpm build`, publish `dist`). `SANITY_API_READ_TOKEN` is set as a production environment variable. The Netlify URL is in Sanity's CORS origins with credentials allowed, alongside the two localhost entries. `/`, `/es`, `/en` all render real content; `/admin` redirects to `/admin/` and serves the Studio shell.
+
+Not yet done: the custom domain `somibcn.org` (DNS not pointed at Netlify yet), and a real-browser check that Presentation preview round-trips in production the way it does locally.
 
 ### Phase 9 — Owner access and handoff
 

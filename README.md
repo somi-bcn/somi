@@ -44,9 +44,8 @@ Deploys `main`. Build settings live in `netlify.toml`, not the dashboard, so cha
 ## Astro
 
 Server output through the Netlify adapter, required for draft-mode preview cookies.
-Routes are `/` for Catalan, `/es`, and `/en`.
+Routes are `/` for Catalan, `/es`, and `/en`. The three locale pages share
+`src/components/HomePage.astro`, which reads the `homePage` singleton from Sanity.
 
-## Status
-
-Scaffold only. Sanity, i18n routing, Tailwind, and the Studio are not wired up yet, so the
-sections above describe the intended setup rather than what currently runs.
+Run `pnpm seed:sanity` once after cloning (or after a dataset reset) to populate the
+starting copy; the pages render empty sections until the document exists.

@@ -15,7 +15,7 @@ Verify every change with `pnpm lint`, `pnpm check`, and `pnpm build`. All three 
 ## Identifiers
 
 - Sanity organization `o0kbzk1yj`, project `somi` (`7baiygyd`), dataset `production`, public
-- GitHub `somi-bcn/somi`, private, default branch `main`
+- GitHub `somi-bcn/somi`, public, default branch `main`
 
 ## Working with the owner
 
