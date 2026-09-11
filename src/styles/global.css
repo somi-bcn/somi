@@ -21,18 +21,475 @@
     U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
+/* ─── Colour system ─────────────────────────────────────────────────────────
+ *
+ * Target: WCAG 2.2 AAA throughout. AAA thresholds:
+ *   ≥ 7.00 : 1  — all text sizes
+ *   ≥ 4.50 : 1  — large text only (≥ 18 pt / 24 px normal, or ≥ 14 pt / ~19 px bold)
+ *
+ * Primitive tokens live in @theme → Tailwind generates text-*, bg-*, border-* utilities.
+ * Semantic usage rules are documented below the @theme block.
+ *
+ * ─── Primitive palette ──────────────────────────────────────────────────────
+ *
+ *   ground   #efe3de   warm blush — page base everywhere
+ *   yellow   #f0ce31   brand yellow
+ *   red      #b1302d   brand red (adjusted 2% from manual's #b8322f; better contrast)
+ *   teal     #63a4af   brand teal
+ *   orange   #ca5d08   brand orange
+ *   olive    #4d5233   dark green
+ *   ink      #110e0c   near-black — body text, default foreground
+ *   chalk    #f7f4f0   near-white — text on dark surfaces
+ *
+ * ─── Near-neutrals rationale ────────────────────────────────────────────────
+ *
+ *   ink  #110e0c (R17 G14 B12) — barely warm near-black; the R > G > B
+ *   relationship mirrors the ground's warm undertone. In isolation it reads
+ *   as rich black; placed beside #000000 the warmth is perceptible. The
+ *   difference from pure black is intentional: it sits more gently on the
+ *   warm blush ground and avoids the slightly clinical look of true #000.
+ *
+ *   chalk #f7f4f0 (R247 G244 B240) — cream near-white with a matching warm
+ *   tilt. Reads as white in context; the warmth keeps it from looking like
+ *   a browser default against the palette's earthy tones.
+ *
+ * ─── Verified contrast ratios ───────────────────────────────────────────────
+ *
+ *   ✅ AAA all text (≥ 7.00)
+ *     ink   on ground    15.31 : 1
+ *     ink   on yellow    12.43 : 1
+ *     chalk on olive      7.45 : 1
+ *     olive on chalk      7.45 : 1   ← olive body text on near-white bg works
+ *
+ *   ⚠️  AAA large text only (≥ 4.50, < 7.00)
+ *     ink   on teal       6.83 : 1   — teal sections: headings/display only
+ *     red   on ground     5.02 : 1   — accent phrases, large headings
+ *     red   on chalk      5.75 : 1   — accent phrases, large headings
+ *     olive on ground     6.50 : 1   — display text, pull-quotes
+ *     olive on yellow     5.28 : 1   — display text on yellow panels
+ *     ground on olive     6.50 : 1   — oversized display on olive panels
+ *
+ *   ❌  decorative / icons / illustrations only (< 4.50)
+ *     orange as text or bg — fails on every surface at any size
+ *     teal as text color — fails on all light surfaces
+ *     red on yellow — 4.08; illustrations/pattern only
+ *     red on teal, red on olive, etc.
+ *
+ * ─── Teal constraint ────────────────────────────────────────────────────────
+ *
+ *   ink (#110e0c) on teal is 6.83 : 1 — just below the 7.00 AAA small-text
+ *   threshold. Teal is an accent background only; keep all teal-section text
+ *   as large text (headings, overlines, CTAs). If teal ever needs body-size
+ *   text at AAA small text, swap ink for #0a0a0a (15.76 on ground, 7.03 on
+ *   teal — the only near-black that clears teal at AAA for all sizes).
+ *
+ * ─── Colour blindness ───────────────────────────────────────────────────────
+ *
+ *   All AAA luminance pairs above are safe under every CVD type — contrast
+ *   is a luminance property, unaffected by hue shift. The notes below flag
+ *   pairs that lose hue distinction under simulation; avoid using these
+ *   combos where colour alone conveys meaning.
+ *
+ *   Deuteranopia / Protanopia (red-green):
+ *     red + olive → both shift toward the same dark khaki; use shape or
+ *                   pattern alongside colour to distinguish them
+ *     orange + olive → similar collapse; decorative use only
+ *
+ *   Tritanopia (blue-yellow):
+ *     yellow + ground → both appear as a pale warm neutral; rely on
+ *                       contrast or borders to separate them
+ *
+ *   All other pairs retain clear hue separation under all three CVD types.
+ *
+ * ─── Section surface map ────────────────────────────────────────────────────
+ *
+ *   Default (most sections)       bg-ground      text-ink
+ *   Yellow accent                 bg-yellow      text-ink
+ *   Teal accent (large text only) bg-teal        text-ink
+ *   Olive accent (subtle dark)    bg-olive       text-chalk
+ *   — white/black as bg: not in use for Somi
+ *
+ *   Large text / display combos (headings, overlines, pull-quotes only):
+ *     ink   on teal      6.83 : 1   (teal sections)
+ *     red   on ground    5.02 : 1   (accent phrases on page base)
+ *     red   on chalk     5.75 : 1   (accent phrases on near-white panels)
+ *     olive on ground    6.50 : 1   (display text on page base)
+ *     olive on yellow    5.28 : 1   (display text on yellow panels)
+ *     ground on olive    6.50 : 1   (oversized display on olive panels)
+ *
+ * ─── Decorative palette ─────────────────────────────────────────────────────
+ *
+ *   Below AAA thresholds — no text. Use freely for botanical illustrations,
+ *   edge strips, SVG fills, and shapes.
+ *
+ *   orange on ground   — botanical drawings, icon fills, edge accents
+ *   ground on orange   — reversed fills; edge strip extending from screen edge
+ *   yellow on red      — ornamental pattern, festive graphic moments
+ *   red on yellow      — 4.08 : 1; bright pop, decorative only
+ *   ground on olive    — oversized display qualifies at 6.50 : 1 large text;
+ *                        below that size treat as decorative
+ *
+ * ─── Section rhythm ────────────────────────────────────────────────────
+ *
+ *   1. Hero         bg-red      text-chalk     5.75 : 1  AAA large text
+ *   2. Ethos        bg-ground   text-ink      15.31 : 1  AAA all text
+ *   3. Activities   bg-ground   text-ink      15.31 : 1  AAA all text
+ *   4. Join         bg-yellow   text-ink      12.43 : 1  AAA all text
+ *   5. Residency    SPLIT — teal band (heading + CTA, large text only, 6.83 : 1)
+ *                           + ground body (15.31 : 1). Teal tied to this section;
+ *                           removed if section is removed.
+ *   6. About        bg-ground   text-ink      15.31 : 1  AAA all text
+ *   7. Footer       bg-olive    text-chalk     7.45 : 1  AAA all text
+ *
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+/* ─── Typography ─────────────────────────────────────────────────────────────
+ *
+ * Single typeface: Lexend variable (100–900 axis), self-hosted. No italic:
+ * Lexend ships no true italic in its Google Fonts release — avoid italic or
+ * accept browser-synthesised oblique (see open items in docs/plan.md).
+ *
+ * ─── Type scale (fluid, 360 → 1440 px viewport) ────────────────────────────
+ *
+ *   Role   px range   rem min / max   weight   lh      ls
+ *   H1     48 → 72    3.000 / 4.500     700    1.05   −0.02em
+ *   H2     28 → 34    1.750 / 2.125     500    1.20   −0.015em
+ *   H3     20 → 24    1.250 / 1.500     500    1.35   —
+ *   H4     11 (fixed) 0.6875 / —        700    —      0.12em + uppercase
+ *   Body   16 → 18    1.000 / 1.125     400    1.65   —
+ *
+ * ─── Spacing scale ──────────────────────────────────────────────────────────
+ *
+ *   Scale: 1 / 1.25 / 1.75 / 3 / 6 rem. Each step from H2 upward roughly
+ *   doubles; the section pad is exactly 2× the H1 gap.
+ *
+ *   Token             Value
+ *   --gap-h3          1rem
+ *   --gap-p           1.25rem
+ *   --gap-h2          1.75rem
+ *   --gap-h1          3rem
+ *   --spacing-section 6rem
+ *
+ *   Component gap (flex/grid siblings within a section — activity tiles, team
+ *   members, CTA pairs) is ~2rem; confirm in D3 once layout shapes are set.
+ *
+ * ─────────────────────────────────────────────────────────────────────────── */
+
 @theme {
   --font-sans: 'Lexend', ui-sans-serif, system-ui, sans-serif;
 
-  --color-ground: #efe3de;
-  --color-yellow: #f0ce31;
-  --color-red: #b8322f;
-  --color-teal: #63a4af;
-  --color-orange: #ca5d08;
-  --color-olive: #4d5233;
+  /* brand primitives */
+  --color-ground:  #efe3de;
+  --color-yellow:  #f0ce31;
+  --color-red:     #b1302d; /* large text and display only; adjusted from manual's #b8322f */
+  --color-teal:    #63a4af;
+  --color-orange:  #ca5d08; /* icons and illustrations only — fails AAA as text or bg */
+  --color-olive:   #4d5233;
+
+  /* near-neutrals */
+  --color-ink:     #110e0c; /* body text everywhere; see teal constraint above */
+  --color-chalk:   #f7f4f0; /* text on olive and any future dark surface */
+
+  /* type scale */
+  --text-h1:    clamp(3rem, 2.222vw + 2.5rem, 4.5rem);         /* 48 → 72 px */
+  --text-h2:    clamp(1.75rem, 0.556vw + 1.625rem, 2.125rem);  /* 28 → 34 px */
+  --text-h3:    clamp(1.25rem, 0.370vw + 1.167rem, 1.5rem);    /* 20 → 24 px */
+  --text-h4:    0.6875rem;                                     /* 11 px, fixed */
+  --text-body:  clamp(1rem, 0.185vw + 0.958rem, 1.125rem);     /* 16 → 18 px */
+
+  /* section-level spacing */
+  --spacing-section: 6rem;
+}
+
+/* intra-section spacing — used in @layer base below; not exposed as utilities */
+:root {
+  --gap-h1: 3rem;
+  --gap-h2: 1.75rem;
+  --gap-h3: 1rem;
+  --gap-p:  1.25rem;
 }
 
 body {
   background-color: var(--color-ground);
   font-family: var(--font-sans);
+  color: var(--color-ink);
+}
+
+@layer base {
+  h1 {
+    font-size: var(--text-h1);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    margin-bottom: var(--gap-h1);
+  }
+
+  h2 {
+    font-size: var(--text-h2);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+    margin-bottom: var(--gap-h2);
+  }
+
+  h3 {
+    font-size: var(--text-h3);
+    font-weight: 500;
+    line-height: 1.35;
+    text-wrap: balance;
+    margin-bottom: var(--gap-h3);
+  }
+
+  h4 {
+    font-size: var(--text-h4);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  p {
+    font-size: var(--text-body);
+    font-weight: 400;
+    line-height: 1.65;
+  }
+
+  p + p {
+    margin-top: var(--gap-p);
+  }
+}
+
+/* ─── Layout ─────────────────────────────────────────────────────────────────
+ *
+ * Three containers govern width. The hero sits outside all of them and always
+ * fills the viewport edge-to-edge.
+ *
+ * ─── Containers ─────────────────────────────────────────────────────────────
+ *
+ *   .page-wrap   max-width 1280 px, centred, fluid side padding.
+ *                All non-hero sections live inside this.
+ *
+ *   .prose-col   width: min(70ch, 100%).
+ *                Applied to text-only content inside a section. The min()
+ *                ensures the column never exceeds its container — required for
+ *                reflow.
+ *
+ * ─── Hero ───────────────────────────────────────────────────────────────────
+ *
+ *   width: 100%; overflow: hidden. Placed outside .page-wrap so its background
+ *   reaches both viewport edges at every width. Text inside the hero uses
+ *   .prose-col or its own inner wrapper for alignment.
+ *
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  --page-max-width:  1280px;
+  --page-padding-x:  clamp(1rem, 5vw, 2.5rem);
+  --prose-max-width: 70ch;
+}
+
+@layer components {
+  .page-wrap {
+    max-width: var(--page-max-width);
+    margin-inline: auto;
+    padding-inline: var(--page-padding-x);
+  }
+
+  .prose-col {
+    width: min(var(--prose-max-width), 100%);
+  }
+}
+
+/* ─── Navigation ─────────────────────────────────────────────────────────────
+ *
+ * Sticky 56px bar. Wordmark left, anchor links centred, locale switcher right.
+ * Hamburger replaces anchor links below a breakpoint TBD once real link text
+ * is in place.
+ *
+ * ─── Tokens ─────────────────────────────────────────────────────────────────
+ *
+ *   --nav-height    56px   — used for scroll-margin-top on anchor targets
+ *   --nav-z         50     — keeps nav above all content layers
+ *
+ * ─── Locale switcher a11y ────────────────────────────────────────────────────
+ *
+ *   <nav aria-label="Idioma"> wraps a <ul> of <a> links.
+ *   Each link carries lang=, hreflang=, and aria-current="page" on the active.
+ *   CSS ::before pseudo-elements render the "/" dividers — they never enter
+ *   the a11y tree so no aria-hidden is needed.
+ *
+ * ─── Reflow (WCAG 1.4.10) ───────────────────────────────────────────────────
+ *
+ *   padding-inline uses var(--page-padding-x) (clamp-based), so the nav
+ *   scales down to 320px / 400% zoom without overflow. Anchor links move
+ *   behind the hamburger at the TBD breakpoint.
+ *
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  --nav-height: 56px;
+  --nav-z: 50;
+}
+
+/* Anchor scroll offset for sticky nav */
+:target {
+  scroll-margin-top: calc(var(--nav-height) + 1rem);
+}
+
+@layer components {
+  .site-nav {
+    position: sticky;
+    top: 0;
+    z-index: var(--nav-z);
+    height: var(--nav-height);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-inline: var(--page-padding-x);
+    background-color: var(--color-ground);
+    border-bottom: 1px solid rgba(17, 14, 12, 0.10);
+    gap: 1rem;
+  }
+
+  .site-nav__wordmark {
+    color: var(--color-red);
+    white-space: nowrap;
+    flex-shrink: 0;
+    text-decoration: none;
+  }
+
+  .site-nav__wordmark svg {
+    display: block;
+    width: 2.75rem;
+    height: auto;
+    transform: translateY(-3px);
+  }
+
+  /* Anchor links — hidden (via hamburger) below breakpoint TBD */
+  .site-nav__links {
+    display: flex;
+    align-items: center;
+    gap: 1.75rem;
+    flex: 1;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .site-nav__link {
+    font-size: 11.5px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--color-ink);
+    white-space: nowrap;
+    opacity: 0.75;
+    text-decoration: none;
+    padding-block: 0.375rem;
+    min-height: 24px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .site-nav__link:hover,
+  .site-nav__link:focus-visible {
+    opacity: 1;
+  }
+
+  .site-nav__right {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  /* ── Locale switcher ──────────────────────────────────────────────────── */
+
+  .locale-switcher {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .locale-switcher li + li::before {
+    content: '/';
+    font-size: 10px;
+    color: var(--color-ink);
+    opacity: 0.3;
+    margin-inline: 4px;
+    font-weight: 400;
+  }
+
+  .locale-switcher__link {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+    color: var(--color-ink);
+    opacity: 0.45;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    padding-block: 0.375rem;
+    min-height: 24px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .locale-switcher__link[aria-current='page'] {
+    opacity: 1;
+    text-decoration: none;
+  }
+
+  .locale-switcher__link:hover,
+  .locale-switcher__link:focus-visible {
+    opacity: 1;
+  }
+
+  /* ── Hamburger button (visible below nav breakpoint — TBD) ───────────── */
+
+  .site-nav__hamburger {
+    display: none; /* toggled via media query once breakpoint is confirmed */
+    flex-direction: column;
+    gap: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    min-width: 24px;
+    min-height: 24px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .site-nav__hamburger span {
+    display: block;
+    height: 1.5px;
+    width: 20px;
+    background: var(--color-ink);
+    border-radius: 2px;
+  }
+}
+
+/* ─── Sections ──────────────────────────────────────────────────────────────── */
+
+@layer components {
+  .hero {
+    width: 100%;
+    overflow: hidden;
+    background-color: var(--color-red);
+    color: var(--color-chalk);
+    padding-block: var(--spacing-section);
+    padding-inline: var(--page-padding-x);
+  }
+
+  .hero__tagline {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-block-end: 1.25rem;
+  }
 }

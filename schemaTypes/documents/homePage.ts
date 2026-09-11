@@ -20,13 +20,18 @@ export const homePage = defineType({
   fields: [
     section('hero', 'Hero', [
       defineField({
+        name: 'tagline',
+        title: 'Tagline',
+        type: 'internationalizedArrayString',
+      }),
+      defineField({
         name: 'heading',
         title: 'Heading',
         type: 'internationalizedArrayString',
       }),
       defineField({
-        name: 'subheading',
-        title: 'Subheading',
+        name: 'lede',
+        title: 'Lede',
         type: 'internationalizedArrayText',
       }),
     ]),
@@ -52,6 +57,11 @@ export const homePage = defineType({
         name: 'body',
         title: 'Body',
         type: 'internationalizedArrayText',
+      }),
+      defineField({
+        name: 'cta',
+        title: 'CTA Label',
+        type: 'internationalizedArrayString',
       }),
     ]),
     section('join', 'Join', [

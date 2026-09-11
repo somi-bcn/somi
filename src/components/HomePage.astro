@@ -7,6 +7,7 @@ import { pickLocale } from '../lib/sanity/locale';
 import type { IntlArray } from '../lib/sanity/queries';
 import { isPreview } from '../lib/sanity/preview';
 import { getHomeContent } from '../lib/sanity/getHomeContent';
+import Logo from './Logo.astro';
 
 interface Props {
   locale: Locale;
@@ -25,43 +26,67 @@ const t = (field: IntlArray | undefined) => pickLocale(field, locale);
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="icon" href="/favicon.ico" />
     <link rel="preload" as="font" type="font/woff2" href="/fonts/lexend-latin.woff2" crossorigin />
     <meta name="generator" content={Astro.generator} />
     <title>Somi</title>
   </head>
   <body>
+  <header class="site-nav">
+    <a class="site-nav__wordmark" href="/" aria-label="Somi"><Logo /></a>
+    <nav aria-label={{ ca: 'Navegació principal', es: 'Navegación principal', en: 'Main navigation' }[locale]}>
+      <ul class="site-nav__links">
+        <li><a class="site-nav__link" href="#ethos">Ethos</a></li>
+        <li><a class="site-nav__link" href="#activities">Activitats</a></li>
+        <li><a class="site-nav__link" href="#residency">Residència</a></li>
+        <li><a class="site-nav__link" href="#join">Uneix-te</a></li>
+        <li><a class="site-nav__link" href="#about">Sobre</a></li>
+      </ul>
+    </nav>
+    <div class="site-nav__right">
+      <nav aria-label={{ ca: 'Idioma', es: 'Idioma', en: 'Language' }[locale]}>
+        <ul class="locale-switcher">
+          <li><a class="locale-switcher__link" href="/"   lang="ca" hreflang="ca" aria-current={locale === 'ca' ? 'page' : undefined}>cat</a></li>
+          <li><a class="locale-switcher__link" href="/es" lang="es" hreflang="es" aria-current={locale === 'es' ? 'page' : undefined}>es</a></li>
+          <li><a class="locale-switcher__link" href="/en" lang="en" hreflang="en" aria-current={locale === 'en' ? 'page' : undefined}>en</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
     <main>
-      <section id="hero">
-        <h1>{t(content?.hero?.heading)}</h1>
-        <p class="whitespace-pre-line">{t(content?.hero?.subheading)}</p>
-      </section>
+      <section id="hero" class="hero">
+          <p class="hero__tagline">{t(content?.hero?.tagline)}</p>
+          <h1>{t(content?.hero?.heading)}</h1>
+          <p class="prose-col whitespace-pre-line">{t(content?.hero?.lede)}</p>
+        </section>
 
-      <section id="ethos">
+      <section id="ethos" class="page-wrap py-section">
         <h2>{t(content?.ethos?.heading)}</h2>
-        <p class="whitespace-pre-line">{t(content?.ethos?.body)}</p>
+        <p class="prose-col whitespace-pre-line">{t(content?.ethos?.body)}</p>
       </section>
 
-      <section id="activities">
+      <section id="activities" class="page-wrap py-section">
         <h2>{t(content?.activities?.heading)}</h2>
-        <p class="whitespace-pre-line">{t(content?.activities?.body)}</p>
+        <p class="prose-col whitespace-pre-line">{t(content?.activities?.body)}</p>
+        <p data-cta>{t(content?.activities?.cta)}</p>
       </section>
 
-      <section id="join">
+      <section id="join" class="page-wrap py-section">
         <h2>{t(content?.join?.heading)}</h2>
-        <p class="whitespace-pre-line">{t(content?.join?.body)}</p>
-        {/* Rendered as text until the enquiry form URL exists (see plan open items). */}
-        {t(content?.join?.cta) && <p data-cta>{t(content?.join?.cta)}</p>}
+        <p class="prose-col whitespace-pre-line">{t(content?.join?.body)}</p>
+        <p data-cta>{t(content?.join?.cta)}</p>
       </section>
 
-      <section id="residency">
+      <section id="residency" class="page-wrap py-section">
         <h2>{t(content?.residency?.heading)}</h2>
-        <p class="whitespace-pre-line">{t(content?.residency?.body)}</p>
+        <p class="prose-col whitespace-pre-line">{t(content?.residency?.body)}</p>
       </section>
 
-      <section id="about">
+      <section id="about" class="page-wrap py-section">
         <h2>{t(content?.about?.heading)}</h2>
-        <p class="whitespace-pre-line">{t(content?.about?.body)}</p>
+        <p class="prose-col whitespace-pre-line">{t(content?.about?.body)}</p>
       </section>
     </main>
 

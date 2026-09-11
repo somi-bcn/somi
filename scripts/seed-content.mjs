@@ -1,4 +1,4 @@
-// Seed the `homePage` singleton with the starting copy from resources/Website.pdf.
+// Seed the `homePage` singleton with the copy from resources/website.pdf.
 //
 //   pnpm seed:sanity      (== node --env-file=.env scripts/seed-content.mjs)
 //
@@ -35,34 +35,62 @@ const intl = (type, text) =>
 const str = (text) => intl('internationalizedArrayStringValue', text);
 const txt = (text) => intl('internationalizedArrayTextValue', text);
 
-const heroSubheading = `somi is a new community space for radical tenderness in Raval, Barcelona. It's a place to reconnect with your creativity, your body, and a community. It is available for workshops, talks, events, exhibitions, screenings and anything else that might bring people together. It is a living lab exploring how hope and courage can emerge simply through being present with others, and how healing, when it happens collectively, can become an act of resistance.`;
+// ─── Hero ────────────────────────────────────────────────────────────────────
+
+const heroTagline = `Connection · Community · Creativity`;
+
+const heroHeading = `A space for radical tenderness in the heart of Raval`;
+
+const heroLede = [
+  `SOMI is an oasis for radical tenderness in Raval. A place to slow down, to create, to experiment, gather, and to be fully present.`,
+  `If you're tired of hearing the defeatist's "it doesn't matter, we're fucked" and instead you deeply believe that things can and must change, SOMI is for you. It is a place to reconnect with your creativity, your body, and a community. It is a living lab exploring how we can relate differently to others, and how healing, when tackled collectively, can become an act of resistance. It is available for workshops, talks, events, exhibitions, screenings and anything else that might bring people together.`,
+].join('\n\n');
+
+// ─── Ethos ───────────────────────────────────────────────────────────────────
 
 const ethosBody = [
-  `If you're tired of hearing "it doesn't matter, we're f**ed" — and you deeply believe that things can and must change, somi is for you.`,
-  `somi is an oasis for radical tenderness in Raval. A place to slow down, reconnect with your body, your creativity, and a community. To rest, create, and gather, to be fully present.`,
-  `At somi, we believe that coming back to ourselves is a political act. That by reconnecting with our bodies, rediscovering our creativity and meeting a community, we can leave more present, less reactive and start to act from a place of care rather than fear.`,
-  `In a time where selfcare and wellbeing are sold as individual activities, at somi we want to make healing a collective responsibility. We believe that you cannot heal yourself if the source of your suffering is systemic. But at somi we don't just heal for the sake of healing, we seek to become better within and amongst ourselves to reconnect with a sense of hopefulness. We believe that by connecting to our creativity through a workshop, by moving our bodies during a concert and most importantly by joining a community, we can release the assumptions that we're powerless individuals. At the core of our ethos is interconnectedness, between mind and body, between different types of humans, and between us and the natural world.`,
-  `We don't see tenderness, vulnerability or care as passive or weak. We see them as resistance. Instead of reproducing the dominant codes of performance, productivity and competition, we practice something different: presence, connection, and the radical belief that another way of being together is possible.`,
+  `At SOMI, we believe that all of this "self-care", health optimization, and wellness crap that's been popularized over the last few years are just another way to keep us self-obsessed and separated. The underlying assumption is probably true: most of us are worried about the future, are hurting, mentally, physically, and are looking for ways out. But all of these trends are just selling more individual solutions to a collective problem.`,
+  `At SOMI we want to make healing a collective responsibility. We believe that you cannot heal by yourself if the source of your suffering is systemic. We believe that by connecting to others during a workshop, by moving our bodies during a concert, and most importantly, by joining a community, we can stop feeling like we're powerless individuals. Because at SOMI we don't just heal for the sake of healing, we do it as a political act: to reconnect with hope and ask for change.`,
+  `This is where radical tenderness comes in. For us, this is the art of choosing care and peace over violence and doom. It doesn't mean staying passive; it means that you find strength in softness and resilience in vulnerability. Our hope with SOMI is that you leave our walls feeling more present, more connected, less reactive and ready to act from a place of care rather than fear or anxiety.`,
+  `Radical tenderness is a concept which has emerged from Mexico, first coined by the transfeminist activist Lia Garcia and then explored by Dani D'Emilia.`,
 ].join('\n\n');
 
-const activitiesBody = `Somi can host a variety of activities from workshops, talks, screenings, exhibitions, concerts, therapies. The space comprises of three modules, a main studio space, a mezzanine and a patio. It also has a full bathroom and kitchen. The rates depend on the type of activity and there are many options available.`;
+// ─── Activities ──────────────────────────────────────────────────────────────
 
-const joinBody = `Somi is not only a community space, but it will also be an association and a living lab. We are establishing a membership subscription which will allow members to get involved however they would like. Whether you have a project you'd like to propose, or you want to help shape the direction of somi we would love to hear from you!`;
+const activitiesBody = [
+  `At SOMI we believe that there are many ways of getting out of our heads and start connecting with others. We can host a variety of activities from workshops, talks, screenings, exhibitions to concerts and therapies.`,
+  `We welcome proposals from anyone whether you are an individual, collective, organization, or independent initiative who has a project aligned with our ethos and wants to collaborate, showcase, or program with us.`,
+  `The rates depend on the type of activity, please contact us for more information.`,
+].join('\n\n');
 
-const residencyBody = `During the off season or when there are no events programmed, somi is available as an artistic residency for creators, explorers, weavers who would like to find a little oasis in the heart of Barcelona.`;
+// ─── Join ─────────────────────────────────────────────────────────────────────
+
+const joinBody = [
+  `SOMI is not only a community space, but also an association and a living lab. We are establishing a membership subscription which will allow members to get involved however they would like. By joining, members may participate in shaping the project, help develop the program and access benefits like the co-working space.`,
+  `Whether you have a project you'd like to propose, or you want to help shape the direction of SOMI we would love to hear from you!`,
+].join('\n\n');
+
+// ─── Residency ───────────────────────────────────────────────────────────────
+
+const residencyBody = `During the off season or when there are no events programmed, SOMI is available as an artistic residency for creators, explorers, weavers who would like to find a little oasis in the heart of Barcelona.`;
+
+// ─── About ───────────────────────────────────────────────────────────────────
 
 const aboutBody = [
-  `Somi was founded by Caro Biotteau after leaving a career in the energy transition, where she witnessed many of her dedicated peers — herself included — sacrificing their physical and mental wellbeing to "save the world," only to cycle through burnout and disillusionment.`,
-  `Having lived most of her life with chronic pain conditions — endometriosis and adenomyosis — Caro has always been wired with the stubborn belief that things can get better. During her years in the energy sector, she pushed her body to keep up with the system's rhythm. When she couldn't anymore, she blamed herself — until she realised it wasn't her fault. The system itself was broken.`,
-  `When she stepped away to focus on rebuilding her health, something shifted. She noticed that the mainstream approach to wellbeing places all responsibility on the individual to heal, while the roots of that suffering are systemic. Individual solutions to collective problems. Somi is her response to that. A space where healing is understood as a collective act — not a personal project. She will also be pursuing research in collective healing and radical tenderness, using Somi as a living laboratory for what a different way of being together might look like.`,
+  `SOMI was founded by Caro Biotteau after leaving a career in the energy transition. For years, she witnessed her colleagues sacrificing their physical and mental wellbeing to "save the planet," only to go from burnout to disillusionment. Living with chronic pain from endometriosis and adenomyosis, she also constantly had to push her body to keep up with the system's rhythm and blamed herself when she failed.`,
+  `When she decided to quit everything to focus on her health, things finally made sense. She realized that the mainstream approach to wellbeing places all of the responsibility on the individual, while the roots of the illnesses are almost always systemic. It's when she started feeling connected again to her body, to her creativity and to a community that she finally started leaving her physical and mental sufferings behind. With SOMI she wants to provide a safe space for people who feel deeply.`,
+  `With a background in Environmental Governance and International Economic Policy, Caro will also be pursuing research in ecofeminism, studying radical tenderness and collective healing.`,
 ].join('\n\n');
+
+// ─── Document ────────────────────────────────────────────────────────────────
 
 const doc = {
   _id: 'homePage',
   _type: 'homePage',
   hero: {
-    heading: str('A space for radical tenderness in the heart of Raval'),
-    subheading: txt(heroSubheading),
+    tagline: str(heroTagline),
+    heading: str(heroHeading),
+    lede: txt(heroLede),
   },
   ethos: {
     heading: str('Ethos'),
@@ -89,7 +117,7 @@ const doc = {
 
 await client.createOrReplace(doc);
 
-// Drop any leftover draft so the Studio doesn't keep showing stale content.
+// Drop any leftover draft so the Studio doesn't show stale content.
 await client.delete('drafts.homePage').catch((err) => {
   if ((err?.statusCode ?? err?.response?.statusCode) !== 404) throw err;
 });

@@ -6,7 +6,7 @@ This file is the canonical plan. The build plan, version pins, and content model
 
 Phases 0 through 8 are done. The repository is `somi-bcn/somi`, public, on `main`, and `pnpm lint`, `pnpm check`, and `pnpm build` all pass. Sanity project `7baiygyd` exists with a public `production` dataset and working tokens in `.env`. The Sanity schema, Studio config, and structure resolver are in place. `astro.config.mjs` is wired to Sanity: server output with the Netlify adapter, i18n routing, embedded Studio at `/admin`, Tailwind 4, sitemap, and draft-mode preview. The three locale pages render the `homePage` singleton through a shared component. Run `pnpm seed:sanity` once to populate the starting copy. The site is live at `https://somi-bcn.netlify.app`, deploying from `main`.
 
-**Next: point the custom domain at Netlify, then Phase 9 (owner access and handoff).**
+**Next: Phase 9 in progress — D3 (section mapping) is next. Before starting D3, seed rough machine-translated CA and ES copy into Sanity so layout work is done against realistic text lengths. Then Phase 10 (owner review and copy iteration), then Phase 11 (custom domain, final polish, and handoff).**
 
 
 Read `AGENTS.md` at the repo root first; it holds the toolchain rules and conventions.
@@ -43,7 +43,7 @@ Dev:
 
 ## Content model
 
-- `homePage` singleton — one `object` field per scroll section (`hero`, `ethos`, `activities`, `join`, `residency`, `about`), each rendered as a collapsible card, expanded by default. Section fields are `heading` / `body` (`join` also has `cta`), all copy as `internationalizedArrayString` / `internationalizedArrayText`. GROQ shape: `homePage{ hero{heading,subheading}, ethos{heading,body}, … }`.
+- `homePage` singleton — one `object` field per scroll section (`hero`, `ethos`, `activities`, `join`, `residency`, `about`), each rendered as a collapsible card, expanded by default. Section fields vary: `hero` has `tagline`, `heading`, and `lede`; `activities` and `join` have `heading`, `body`, and `cta`; all others have `heading` and `body`. All copy is `internationalizedArrayString` or `internationalizedArrayText`. GROQ shape: `homePage{ hero{tagline,heading,lede}, ethos{heading,body}, activities{heading,body,cta}, join{heading,body,cta}, residency{heading,body}, about{heading,body} }`.
 - `event` document, repeatable — mixed translation: title and description internationalized, date/time/price/facilitator plain. Not queried or rendered yet; editable in Studio.
 - `siteSettings` singleton — address, social links, per-section SEO metadata
 
@@ -51,16 +51,9 @@ Dev:
 
 ## Starting copy
 
-Seeded from `resources/Website.pdf` by `scripts/seed-content.mjs` (`pnpm seed:sanity`). All three locales get the same English text initially; translation happens later in the Studio. Re-running overwrites the document, so it is a one-time bootstrap, not a sync.
+Seeded from `resources/website.pdf` by `scripts/seed-content.mjs` (`pnpm seed:sanity`). All three locales get the same English text initially; translation happens later in the Studio. Re-running overwrites the document, so it is a one-time bootstrap, not a sync.
 
-- Hero, Join, Activities, Artistic Residency — only one draft exists, use it
-- Ethos — the first, unlabelled draft
-- About — the main-flow version
-- "Radical tenderness" has no field in the current schema and is not seeded; fold it into Ethos or add a field if the owner wants it standalone
-
-Other variants exist in `resources/Website.pdf` and can be swapped in Studio after owner review.
-
-All of this is placeholder pending their sign-off; none of it is final copy.
+All copy is placeholder pending owner sign-off; none of it is final.
 
 ## Brand tokens
 
@@ -226,7 +219,26 @@ Site `somi-bcn` at `https://somi-bcn.netlify.app`, built from `somi-bcn/somi` on
 
 Not yet done: the custom domain `somibcn.org` (DNS not pointed at Netlify yet), and a real-browser check that Presentation preview round-trips in production the way it does locally.
 
-### Phase 9 — Owner access and handoff
+### Phase 9 — Visual design
+
+D1 (reference inventory) is done — see `docs/design-notes.md`. Decisions locked: 16 px body, Lexend single-family, sticky header, ground color with local accent panels, text-only layout first.
+
+D2 (design token decisions) is done — colour roles, type scale, spacing, containers, nav behaviour are all implemented in `src/styles/global.css` and documented in `docs/design-decisions.md`. Open items deferred: hamburger breakpoint (decided during D4 mobile coding), font owner sign-off (Phase 10).
+
+- ~~**D2 — Design token decisions**~~ ✓ Done. See `src/styles/global.css` and `docs/design-decisions.md`.
+- **D3 — Section mapping:** layout treatment and content shape for each of the six anchor sections (Hero, Ethos, Activities, Join, Artistic Residency, About). Document as a table in `docs/design-notes.md` — content shape, layout treatment, mobile behavior, trilingual risk.
+- **D4 — Code prototype:** design in `src/components/HomePage.astro` against real Sanity content. Mobile-first. Build order: Ethos → About → Hero → Activities → Join → Residency. Commit and run `pnpm lint && pnpm check && pnpm build` after each section. Toggle between `/`, `/es`, `/en` throughout — Catalan is the default locale and the longest text.
+- **D5 — Accessibility verification:** integrated during D4, then one dedicated pass before owner review. axe DevTools, keyboard navigation in Chrome and Firefox, VoiceOver top-to-bottom read. See the checklist in `Claude outputs/somi-design-plan.html`.
+
+### Phase 10 — Owner review and copy iteration
+
+- **D6 — Owner review:** send the live URL (not screenshots). Ask three specific questions: does this feel like Somi? Is the page hierarchy right? Any color or type choices that feel off-brand?
+- Owner updates copy directly in Sanity Studio — no code changes needed for text edits.
+- **Translations:** real `ca` and `es` copy. Catalan is the default locale at `/` and should be translated first. Spanish brand copy uses inclusive `-e` forms (`nosotres mismes`, `soles`) — machine translation will flatten these; use a human translator who shares that editorial stance.
+- **Font confirmation:** get owner sign-off on Lexend (see open items).
+- Iterate on D4 as needed from review feedback. Repeat D6 if changes are significant.
+
+### Phase 11 — Custom domain, final polish, and handoff
 
 1. Invite them to the Sanity project.
 2. Invite them to the GitHub org and Netlify team.
